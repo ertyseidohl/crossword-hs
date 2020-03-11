@@ -1,12 +1,15 @@
 import Test.Hspec
-import WordTrie( WordTrie(..), isWord, insert, insertMany )
+import WordTrie( WordTrie(..), isWord, insert, insertMany, getWords )
 
 emptyWordTrie :: WordTrie
 emptyWordTrie = WordTrie {nodes = []}
 
+d :: WordTrie
+d = insertMany emptyWordTrie ["hello", "world"]
+
 main :: IO ()
-main = hspec $
-    describe "findWords" $ do
+main = hspec $ do
+    describe "insert" $ do
         it "Inserts and finds a word" $
             isWord (insert emptyWordTrie "hello") "hello" `shouldBe` True
         it "Inserts and cannot find a different word" $
@@ -19,4 +22,12 @@ main = hspec $
             isWord (insertMany emptyWordTrie ["hello", "hero"]) "hero" `shouldBe` True
         it "Inserts and finds a subword" $
             isWord (insertMany emptyWordTrie ["hello", "hell"]) "hell" `shouldBe` True
-
+    describe "find" $ do
+        it "Handles missing letters at the start" $
+            getWords d "..llo" `shouldBe` ["hello"]
+        it "Handles missing letters at the end" $
+            getWords d "hel.." `shouldBe` ["hello"]
+        it "Handles missing letters in the middle" $
+            getWords d "he..o" `shouldBe` ["hello"]
+        it "Handles only missing letters" $
+            getWords d "....." `shouldBe` ["world", "hello"]

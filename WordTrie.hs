@@ -1,10 +1,10 @@
-module WordTrie (WordTrie(..), insert, insertMany, isWord) where
+module WordTrie (WordTrie(..), insert, insertMany, isWord, getWords) where
 
 import Data.List (find, findIndex)
 
 newtype WordTrie = WordTrie {nodes :: [LetterNode]}
 
-data LetterNode = LetterNode {char :: Char, children :: [LetterNode], endsWord :: Bool}
+data LetterNode = LetterNode {char :: Char, children :: [LetterNode], endsWord :: Bool, parent :: Maybe LetterNode}
 
 instance Show WordTrie where
     show w = unwords $ map show (nodes w)
@@ -15,7 +15,7 @@ instance Show LetterNode where
 insert :: WordTrie -> String -> WordTrie
 insert w [] = w
 insert w str =
-    let ns = insertLetterNode (nodes w) str
+    let ns = insertLetterNode (nodes w) str Nothing
     in WordTrie {
         nodes = ns
     }
@@ -23,17 +23,18 @@ insert w str =
 insertMany :: WordTrie -> [String] -> WordTrie
 insertMany = foldl insert
 
-insertLetterNode :: [LetterNode] -> String -> [LetterNode]
-insertLetterNode ls [] = ls
-insertLetterNode ls (c:cs) =
+insertLetterNode :: [LetterNode] -> String -> Maybe LetterNode -> [LetterNode]
+insertLetterNode ls [] _ = ls
+insertLetterNode ls (c:cs) p =
     case findLetterIndex ls c of
         Just i ->
             let
                 (before, n:after) = splitAt i ls
                 newNode = LetterNode {
                     char = c
-                    , children = insertLetterNode (children n) cs
+                    , children = insertLetterNode (children n) cs (Just newNode)
                     , endsWord = endsWord n || null cs
+                    , parent = p
 
                 }
             in
@@ -41,8 +42,9 @@ insertLetterNode ls (c:cs) =
         Nothing ->
             let newNode = LetterNode {
                 char = c
-                , children = insertLetterNode [] cs
+                , children = insertLetterNode [] cs (Just newNode)
                 , endsWord = null cs
+                , parent = p
             }
             in newNode : ls
 
@@ -67,3 +69,29 @@ isWord_ l [c] = case findLetter (children l) c of
 isWord_ l (c:cs) = case findLetter (children l) c of
     Just n -> isWord_ n cs
     Nothing -> False
+
+getWords :: WordTrie -> String -> [String]
+getWords _ [] = []
+getWords w ('.':cs) =
+    let leaves = concatMap (getLeaves cs) (nodes w)
+    in produceWords leaves
+getWords w (c:cs) = case findLetter (nodes w) c of
+    Just n -> produceWords $ getLeaves cs n
+    Nothing -> []
+
+produceWords :: [LetterNode] -> [String]
+produceWords = map (reverse . readUp)
+
+readUp :: LetterNode -> String
+readUp l = case parent l of
+    Just p -> char l : readUp p
+    Nothing -> [char l]
+
+getLeaves :: String -> LetterNode -> [LetterNode]
+getLeaves [] l = [l | endsWord l]
+getLeaves ('.':cs) l =
+    concatMap (getLeaves cs) (children l)
+getLeaves (c:cs) l = case findLetter (children l) c of
+    Just n -> getLeaves cs n
+    Nothing -> []
+
