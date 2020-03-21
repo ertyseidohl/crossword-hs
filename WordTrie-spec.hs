@@ -31,3 +31,5 @@ main = hspec $ do
             getWords d "he..o" `shouldBe` ["hello"]
         it "Handles only missing letters" $
             getWords d "....." `shouldBe` ["world", "hello"]
+        it "Handles words that differ by one letter" $
+            getWords (insertMany emptyWordTrie ["bat", "cat", "act"]) ".at" `shouldBe` ["cat", "bat"]
