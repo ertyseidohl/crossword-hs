@@ -1,6 +1,6 @@
 module WordTrie (WordTrie(..), insert, insertMany, isWord, getWords) where
 
-import Data.List (find, findIndex)
+import Data.List (find, findIndex, foldl')
 
 newtype WordTrie = WordTrie {nodes :: [LetterNode]}
 
@@ -21,7 +21,7 @@ insert w str =
     }
 
 insertMany :: WordTrie -> [String] -> WordTrie
-insertMany = foldl insert
+insertMany = foldl' insert
 
 insertLetterNode :: [LetterNode] -> String -> Maybe LetterNode -> [LetterNode]
 insertLetterNode ls [] _ = ls
