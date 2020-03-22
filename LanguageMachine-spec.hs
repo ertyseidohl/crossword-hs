@@ -17,3 +17,4 @@ main = hspec $
                 ("test1.tsv", [("AREA", 5492), ("ERA", 5212)])
                 , ("test2.tsv", [("ARIA", 4308), ("ORE", 4208)])]
 
+-- TODO: Check parse errors with badData
