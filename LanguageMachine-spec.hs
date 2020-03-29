@@ -10,11 +10,12 @@ testDir = "test_data"
 
 main :: IO ()
 main = hspec $
-    describe "Load a directory" $
+    describe "Load a directory" $ do
         it "Loads a directory full of valid data" $ do
             let d = loadData testDir badData
             d `shouldReturn` [
                 ("test1.tsv", [("AREA", 5492), ("ERA", 5212)])
                 , ("test2.tsv", [("ARIA", 4308), ("ORE", 4208)])]
-
--- TODO: Check parse errors with badData
+        it "Throws an error if there is invalid data" $ do
+            let d = loadData testDir []
+            d `shouldThrow` errorCall "Invalid input in bad_data.tsv"
