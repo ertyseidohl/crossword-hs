@@ -18,4 +18,4 @@ main = hspec $
                 , ("test2.tsv", [("ARIA", 4308), ("ORE", 4208)])]
         it "Throws an error if there is invalid data" $ do
             let d = loadData testDir []
-            d `shouldThrow` errorCall "Invalid input in bad_data.tsv"
+            d `shouldThrow` errorCall "Invalid input: "
