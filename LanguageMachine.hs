@@ -1,18 +1,16 @@
 module LanguageMachine (loadData) where
 
 import System.Directory (listDirectory)
-import Data.List ((\\), elemIndex, partition)
-import Data.Maybe (mapMaybe, isNothing)
+import Data.List ((\\), elemIndex)
 import Data.Functor ((<&>))
 import Text.Read (readMaybe)
-import Data.Either (isLeft, isRight, lefts, rights)
+import Data.Either (lefts, rights)
 
-newtype LineResult' = LineResult' (String, Int)
-newtype FileResult = FileResult (FilePath, [LineResult])
-newtype FileResult' = FileResult' (FilePath, [LineResult'])
-newtype FileErrors' = FileErrors' (FilePath, [String])
+data FileErrors' = FileErrors' {path :: FilePath, errors :: [String]}
 
-type LineResult = Either String (String, Int)
+type LineResult' = (String, Int)
+type LineResult = Either String LineResult'
+type FileResult' = (FilePath, [LineResult'])
 
 parseTsv :: String -> [LineResult]
 parseTsv contents = map parseLine (lines contents)
@@ -23,11 +21,11 @@ parseLine line = do
     case i of
         Just ind ->
             let (word, strCount) = splitAt ind line in
-                let count = readMaybe strCount in
-                    case count of
-                        Just c -> (Right (word, c))
-                        Nothing -> (Left ("Parse error (no number) on \"" ++ line ++ "\""))
-        Nothing -> (Left ("Parse error (no tab char) on \"" ++ line ++ "\""))
+                let count = readMaybe strCount
+                in case count of
+                    Just c -> Right (word, c)
+                    Nothing -> Left ("Parse error (no number) on \"" ++ line ++ "\"")
+        Nothing -> Left ("Parse error (no tab char) on \"" ++ line ++ "\"")
 
 
 partitionErrors :: [(FilePath, [LineResult])] -> ([FileErrors'], [FileResult'])
@@ -35,28 +33,32 @@ partitionErrors x = (map fst a, map snd a) where a = map partitionErrors' x
 
 partitionErrors' :: (FilePath, [LineResult]) -> (FileErrors', FileResult')
 partitionErrors' (fp, lrs) = (
-        FileErrors' (fp, lefts lrs),
-        FileResult' (fp, map LineResult' (rights lrs))
+        FileErrors' fp (lefts lrs),
+        (fp, rights lrs)
     )
 
-displayAndDiscardErrors :: ([FileErrors'], [FileResult']) -> IO [FileResult']
-displayAndDiscardErrors (es, rs) = do
-    displayErrors es
+displayInfoDiscardErrors :: ([FileErrors'], [FileResult']) -> IO [FileResult']
+displayInfoDiscardErrors (es, rs) = do
+    displayInformation es
     return rs
 
-displayErrors :: [FileErrors'] -> IO ()
-displayErrors [] = putStrLn "Done."
-displayErrors (fe:fes) = do
-    let fp = fst fe
-    let ers = snd fe
+displayInformation :: [FileErrors'] -> IO ()
+displayInformation [] = putStrLn "Done."
+displayInformation (fe:fes) = do
+    let fp = path fe
+    let ers = errors fe
+    putStrLn $ "Loading " ++ fp ++ "."
     mapM_ putStrLn ers
-    displayErrors fes
+    displayInformation fes
 
 loadData :: FilePath -> [FilePath] -> IO [FileResult']
-loadData path exclude = do
-    files <- listDirectory path
+loadData filePath exclude = do
+    files <- listDirectory filePath
     let filtered = files \\ exclude :: [FilePath]
-    let prefixed = map ((path ++ "/") ++) filtered :: [FilePath]
-    let allWords = traverse readFile prefixed <&> map parseTsv <&> zip filtered :: IO [(FilePath, [LineResult])]
-    return $ displayAndDiscardErrors $ partitionErrors allWords
+    let prefixed = map ((filePath ++ "/") ++) filtered :: [FilePath]
+    allWords <- traverse readFile prefixed <&> map parseTsv
+                                <&> zip filtered
+    displayInfoDiscardErrors $ partitionErrors allWords
+
+
 
