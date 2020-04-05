@@ -1,4 +1,4 @@
-module LanguageMachine (loadData) where
+module FileLoader (loadData) where
 
 import System.Directory (listDirectory)
 import Data.List ((\\), elemIndex)
@@ -6,11 +6,10 @@ import Data.Functor ((<&>))
 import Text.Read (readMaybe)
 import Data.Either (lefts, rights)
 
-data FileErrors' = FileErrors' {path :: FilePath, errors :: [String]}
-
+type FileErrors = (String, [String])
 type LineResult' = (String, Int)
 type LineResult = Either String LineResult'
-type FileResult' = (FilePath, [LineResult'])
+type FileResult = (FilePath, [LineResult'])
 
 parseTsv :: String -> [LineResult]
 parseTsv contents = map parseLine (lines contents)
@@ -28,37 +27,23 @@ parseLine line = do
         Nothing -> Left ("Parse error (no tab char) on \"" ++ line ++ "\"")
 
 
-partitionErrors :: [(FilePath, [LineResult])] -> ([FileErrors'], [FileResult'])
+partitionErrors :: [(FilePath, [LineResult])] -> ([FileErrors], [FileResult])
 partitionErrors x = (map fst a, map snd a) where a = map partitionErrors' x
 
-partitionErrors' :: (FilePath, [LineResult]) -> (FileErrors', FileResult')
+partitionErrors' :: (FilePath, [LineResult]) -> (FileErrors, FileResult)
 partitionErrors' (fp, lrs) = (
-        FileErrors' fp (lefts lrs),
+        (fp, lefts lrs),
         (fp, rights lrs)
     )
 
-displayInfoDiscardErrors :: ([FileErrors'], [FileResult']) -> IO [FileResult']
-displayInfoDiscardErrors (es, rs) = do
-    displayInformation es
-    return rs
-
-displayInformation :: [FileErrors'] -> IO ()
-displayInformation [] = putStrLn "Done."
-displayInformation (fe:fes) = do
-    let fp = path fe
-    let ers = errors fe
-    putStrLn $ "Loading " ++ fp ++ "."
-    mapM_ putStrLn ers
-    displayInformation fes
-
-loadData :: FilePath -> [FilePath] -> IO [FileResult']
+loadData :: FilePath -> [FilePath] -> IO ([FileErrors], [FileResult])
 loadData filePath exclude = do
     files <- listDirectory filePath
     let filtered = files \\ exclude :: [FilePath]
     let prefixed = map ((filePath ++ "/") ++) filtered :: [FilePath]
     allWords <- traverse readFile prefixed <&> map parseTsv
                                 <&> zip filtered
-    displayInfoDiscardErrors $ partitionErrors allWords
+    return $ partitionErrors allWords
 
 
 
