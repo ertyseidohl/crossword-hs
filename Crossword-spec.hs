@@ -1,7 +1,13 @@
 import Test.Hspec
 import Control.Exception
 
-import Crossword (fromStrings, getWordAt, Direction(ACROSS, DOWN))
+import Crossword (
+    fromStrings,
+    getWordAt,
+    getWordAtStartSquare,
+    Direction(ACROSS, DOWN),
+    getStartSquares,
+    addWordAt)
 
 main :: IO ()
 main = hspec $ do
@@ -34,3 +40,30 @@ main = hspec $ do
             getWordAt (fromStrings ["abc", "...", "ghi"]) (1,1) ACROSS `shouldBe` "..."
         it "Finds a DOWN word with empty letters" $
             getWordAt (fromStrings ["a.c", "d.f", "g.i"]) (1,1) DOWN `shouldBe` "..."
+    describe "Word At Start Square" $ do
+        it "Finds an ACROSS word with no dark squares" $
+            getWordAtStartSquare (fromStrings ["abc", "def", "ghi"]) ((1,1), ACROSS) `shouldBe` "ef"
+        it "Finds a DOWN word with no dark squares" $
+            getWordAtStartSquare (fromStrings ["abc", "def", "ghi"]) ((1,1), DOWN) `shouldBe` "eh"
+        it "Finds a DOWN word with dark squares" $
+            getWordAtStartSquare (fromStrings ["a#cd", "efgh", "ijkl", "m#op"]) ((1,1), DOWN) `shouldBe` "fj"
+        it "Finds an ACROSS word with empty letters" $
+            getWordAtStartSquare (fromStrings ["abc", "...", "ghi"]) ((1,1), ACROSS) `shouldBe` ".."
+    describe "Get Clues" $ do
+        it "Finds all clues in a crossword with no dark squares" $
+            getStartSquares (fromStrings ["abc", "def", "ghi"]) `shouldBe` [((0,0),ACROSS),((0,0),DOWN),((1,0),DOWN),((2,0),DOWN),((0,1),ACROSS),((0,2),ACROSS)]
+        it "Finds all clues in a crossword with dark squares" $
+            getStartSquares (fromStrings ["abc", "d#f", "ghi"]) `shouldBe` [((0,0),ACROSS),((0,0),DOWN),((1,0),DOWN),((2,0),DOWN),((0,1),ACROSS),((2,1),ACROSS),((0,2),ACROSS),((1,2),DOWN)]
+    describe "Add Word" $ do
+        it "Adds a word to a crossword ACROSS" $
+            show (addWordAt (fromStrings ["...", "...", "..."]) (0, 0) ACROSS "abc") `shouldBe` "abc\n...\n...\n"
+        it "Adds a word to a crossword DOWN" $
+            show (addWordAt (fromStrings ["...", "...", "..."]) (0, 0) DOWN "abc") `shouldBe` "a..\nb..\nc..\n"
+        it "Throws an error if we try to add a word that doesn't fit ACROSS" $
+            evaluate (show (addWordAt (fromStrings ["...", "...", "..."]) (0, 0) ACROSS "abcd")) `shouldThrow` errorCall "Out of bounds coord in addLetterAt"
+        it "Throws an error if we try to add a word that doesn't fit DOWN" $
+            evaluate (show (addWordAt (fromStrings ["...", "...", "..."]) (0, 0) DOWN "abcd")) `shouldThrow` errorCall "Out of bounds coord in addLetterAt"
+        it "Throws an error if we try to add a word that overlaps a dark square ACROSS" $
+            evaluate (show (addWordAt (fromStrings ["..#", "...", "..."]) (0, 0) ACROSS "abc")) `shouldThrow` errorCall "Added word would overlap dark square"
+        it "Throws an error if we try to add a word that overlaps a dark square DOWN" $
+            evaluate (show (addWordAt (fromStrings ["...", "...", "#.."]) (0, 0) DOWN "abc")) `shouldThrow` errorCall "Added word would overlap dark square"

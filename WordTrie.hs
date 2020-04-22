@@ -14,11 +14,14 @@ instance Show LetterNode where
 
 insert :: WordTrie -> String -> WordTrie
 insert w [] = w
-insert w str =
-    let ns = insertLetterNode (nodes w) str Nothing
-    in WordTrie {
-        nodes = ns
-    }
+insert w str
+    | '.' `elem` str = error "Words cannot contain '.'"
+    | '#' `elem` str = error "Words cannot contain '#'"
+    | otherwise =
+        let ns = insertLetterNode (nodes w) str Nothing
+        in WordTrie {
+            nodes = ns
+        }
 
 insertMany :: WordTrie -> [String] -> WordTrie
 insertMany = foldl' insert
@@ -54,10 +57,10 @@ findLetterIndex ns c = findIndex (\n -> char n == c) ns
 findLetter :: [LetterNode] -> Char -> Maybe LetterNode
 findLetter ns c = find (\n -> char n == c) ns
 
-isWord :: WordTrie -> String -> Bool
-isWord _ [] = False
-isWord w [c] = maybe False endsWord (findLetter (nodes w) c)
-isWord w (c:cs) = case findLetter (nodes w) c of
+isWord :: String -> WordTrie -> Bool
+isWord [] _ = False
+isWord [c] w = maybe False endsWord (findLetter (nodes w) c)
+isWord (c:cs) w = case findLetter (nodes w) c of
     Just n -> isWord_ n cs
     Nothing -> False
 
@@ -70,12 +73,12 @@ isWord_ l (c:cs) = case findLetter (children l) c of
     Just n -> isWord_ n cs
     Nothing -> False
 
-getWords :: WordTrie -> String -> [String]
-getWords _ [] = []
-getWords w ('.':cs) =
+getWords ::  String -> WordTrie -> [String]
+getWords [] _ = []
+getWords ('.':cs) w =
     let leaves = concatMap (getLeaves cs) (nodes w)
     in produceWords leaves
-getWords w (c:cs) = case findLetter (nodes w) c of
+getWords (c:cs) w = case findLetter (nodes w) c of
     Just n -> produceWords $ getLeaves cs n
     Nothing -> []
 

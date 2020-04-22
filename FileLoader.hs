@@ -44,6 +44,3 @@ loadData filePath exclude = do
     allWords <- traverse readFile prefixed <&> map parseTsv
                                 <&> zip filtered
     return $ partitionErrors allWords
-
-
-
