@@ -12,7 +12,6 @@ module Crossword(
 
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe)
-import Debug.Trace (trace)
 
 -- data Symmetry = NONE | HALF_TURN | QUARTER_TURN deriving Eq
 data Color = LIGHT | DARK deriving Eq
@@ -38,11 +37,11 @@ fromStrings ls
         let
             (w,h) = getStringsBounds ls
         in
-            let cw = Crossword {
+            Crossword {
                 width = w
                 , height = h
                 , chars = Map.fromList $ concat [[ ((x, y), charToSquare c) | (x, c) <- zip [0..] row ] | (y, row) <- zip [0..] ls ]
-            } in trace (show cw) cw
+            }
 
 getStringsBounds :: [String] -> Coord
 getStringsBounds [] = (0,0)

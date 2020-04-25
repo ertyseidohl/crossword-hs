@@ -1,4 +1,4 @@
-module FileLoader (loadData) where
+module FileLoader (loadData, FileErrors, FileResult) where
 
 import System.Directory (listDirectory)
 import Data.List ((\\), elemIndex)
@@ -14,6 +14,12 @@ type FileResult = (FilePath, [LineResult'])
 parseTsv :: String -> [LineResult]
 parseTsv contents = map parseLine (lines contents)
 
+errorIfContainsIllegalChar :: String -> Int -> LineResult
+errorIfContainsIllegalChar word c
+    | '#' `elem` word = Left ("Ignoring " ++ word ++ " because it contains '#'")
+    | '.' `elem` word = Left ("Ignoring " ++ word ++ " because it contains '.'")
+    | otherwise = Right (word, c)
+
 parseLine :: String -> LineResult
 parseLine line = do
     let i = elemIndex '\t' line
@@ -22,7 +28,7 @@ parseLine line = do
             let (word, strCount) = splitAt ind line in
                 let count = readMaybe strCount
                 in case count of
-                    Just c -> Right (word, c)
+                    Just c -> errorIfContainsIllegalChar word c
                     Nothing -> Left ("Parse error (no number) on \"" ++ line ++ "\"")
         Nothing -> Left ("Parse error (no tab char) on \"" ++ line ++ "\"")
 
