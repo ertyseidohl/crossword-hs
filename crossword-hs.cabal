@@ -17,11 +17,26 @@ maintainer:          ertysdl+github@gmail.com
 build-type:          Simple
 extra-source-files:  CHANGELOG.md
 
+executable server
+  main-is: Server.hs
+  build-depends:
+    base >=4.12 && <4.13
+    , wai
+    , warp
+    , http-types
+  default-language:    Haskell2010
+
 executable crossword-hs
   main-is:             CrosswordRepl.hs
-  -- other-modules:
-  -- other-extensions:
-  build-depends:       base >=4.12 && <4.13
+  other-modules:
+    FileLoader
+    , LanguageMachine
+    , WordTrie
+    , Crossword
+  build-depends:
+    base >=4.12 && <4.13
+    , containers
+    , directory
   -- hs-source-dirs:
   default-language:    Haskell2010
 
@@ -44,6 +59,7 @@ executable fileloader-spec
   build-depends:
     base >=4.12 && <4.13
     , containers
+    , directory
     , hspec
     , QuickCheck
   -- hs-source-dirs:
@@ -68,6 +84,7 @@ executable wordtrie-spec
   build-depends:
     base >=4.12 && <4.13
     , containers
+    , directory
     , hspec
     , QuickCheck
   -- hs-source-dirs:
