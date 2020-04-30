@@ -17,31 +17,45 @@ maintainer:          ertysdl+github@gmail.com
 build-type:          Simple
 extra-source-files:  CHANGELOG.md
 
-executable server
-  main-is: Server.hs
+library
+  hs-source-dirs: src
   build-depends:
     base >=4.12 && <4.13
     , wai
     , warp
     , http-types
+    , containers
+    , directory
+  exposed-modules:
+    Crossword
+    FileLoader
+    LanguageMachine
+    WordTrie
+  default-language: Haskell2010
+
+executable server
+  main-is: app/Server.hs
+  build-depends:
+    base >=4.12 && <4.13
+    , wai
+    , warp
+    , http-types
+    , utf8-string
+    , bytestring
   default-language:    Haskell2010
 
-executable crossword-hs
-  main-is:             CrosswordRepl.hs
-  other-modules:
-    FileLoader
-    , LanguageMachine
-    , WordTrie
-    , Crossword
+executable crossword-repl
+  main-is: app/CrosswordRepl.hs
   build-depends:
     base >=4.12 && <4.13
     , containers
     , directory
+    , crossword-hs
   -- hs-source-dirs:
   default-language:    Haskell2010
 
 executable crossword-spec
-  main-is:             Crossword-spec.hs
+  main-is: test/Crossword-spec.hs
   -- other-modules:
   -- other-extensions:
   build-depends:
@@ -49,11 +63,12 @@ executable crossword-spec
     , containers
     , hspec
     , QuickCheck
+    , crossword-hs
   -- hs-source-dirs:
   default-language:    Haskell2010
 
 executable fileloader-spec
-  main-is:             FileLoader-spec.hs
+  main-is: test/FileLoader-spec.hs
   -- other-modules:
   -- other-extensions:
   build-depends:
@@ -62,11 +77,12 @@ executable fileloader-spec
     , directory
     , hspec
     , QuickCheck
+    , crossword-hs
   -- hs-source-dirs:
   default-language:    Haskell2010
 
 executable languagemachine-spec
-  main-is:             LanguageMachine-spec.hs
+  main-is: test/LanguageMachine-spec.hs
   -- other-modules:
   -- other-extensions:
   build-depends:
@@ -74,11 +90,12 @@ executable languagemachine-spec
     , containers
     , hspec
     , QuickCheck
+    , crossword-hs
   -- hs-source-dirs:
   default-language:    Haskell2010
 
 executable wordtrie-spec
-  main-is:             WordTrie-spec.hs
+  main-is: test/WordTrie-spec.hs
   -- other-modules:
   -- other-extensions:
   build-depends:
@@ -87,5 +104,6 @@ executable wordtrie-spec
     , directory
     , hspec
     , QuickCheck
+    , crossword-hs
   -- hs-source-dirs:
   default-language:    Haskell2010
