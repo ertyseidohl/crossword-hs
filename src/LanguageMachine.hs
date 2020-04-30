@@ -2,7 +2,6 @@ module LanguageMachine (getCompletions, completeCrossword) where
 
 import Data.List(nub)
 import Data.Maybe(isJust)
-import Debug.Trace(trace)
 
 import WordTrie (WordTrie, isWord, getWords)
 import Crossword (Crossword, StartSquare, getStartSquares, getWordAtStartSquare, addWordAt, isComplete)

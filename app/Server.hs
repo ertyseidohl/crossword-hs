@@ -1,31 +1,41 @@
 {-# LANGUAGE OverloadedStrings #-}
-import Data.ByteString.Lazy (fromStrict)
-import Data.ByteString.Lazy.UTF8 (toString, fromString)
+import Data.ByteString.UTF8 (toString)
+import Data.ByteString.Lazy.UTF8 (fromString)
 import Network.HTTP.Types (status200, status400, status404, Query)
 import Network.Wai.Handler.Warp (run)
 import Network.Wai (Application, Response, rawPathInfo, responseFile, responseLBS, queryString)
 
+import FileLoader (loadData, FileResult)
+import WordTrie (WordTrie(..), insertMany)
+import LanguageMachine (getCompletions)
 
-app :: Application
-app request respond = respond $ case rawPathInfo request of
+wordTrieFromFileResult :: FileResult -> WordTrie
+wordTrieFromFileResult fr =
+    insertMany emptyWordTrie $ map fst $ snd fr
+    where
+        emptyWordTrie = WordTrie {nodes = []}
+
+
+app :: [WordTrie] -> Application
+app wts request respond = respond $ case rawPathInfo request of
     "/" -> index
-    "/words" -> getWords (queryString request)
+    "/words" -> getWords wts (queryString request)
     _ -> notFound
 
-findWordCompletions :: Query -> Maybe String
-findWordCompletions q =
-    case lookup "word" q of
-        Just wq -> case wq of
-            Just wqv -> Just $ toString (fromStrict wqv)
-            Nothing -> Nothing
-        Nothing -> Nothing
+findWordCompletions :: [WordTrie] -> Query -> Maybe String
+findWordCompletions wts q = do
+    wq <- lookup "word" q
+    wqv <- wq
+    Just (
+        let completions = getCompletions wts $ toString wqv
+        in unwords completions)
 
-getWords :: Query -> Response
-getWords q =
-    case findWordCompletions q of
+getWords :: [WordTrie] -> Query -> Response
+getWords wts q =
+    case findWordCompletions wts q of
         Just wcs -> responseLBS
             status200
-            [("Content-Type", "application/json")]
+            [("Content-Type", "text/plain")]
             (fromString wcs)
         Nothing -> responseLBS
             status400
@@ -48,4 +58,9 @@ notFound = responseLBS
 main :: IO ()
 main = do
     putStrLn "http://localhost:8080/"
-    run 8080 app
+    putStrLn "Loading Words"
+    (errors, results) <- loadData "data" []
+    mapM_ print errors
+    let wts = map wordTrieFromFileResult results
+    putStrLn "Loaded Words!"
+    run 8080 (app wts)

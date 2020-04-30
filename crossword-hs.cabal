@@ -42,6 +42,7 @@ executable server
     , http-types
     , utf8-string
     , bytestring
+    , crossword-hs
   default-language:    Haskell2010
 
 executable crossword-repl
