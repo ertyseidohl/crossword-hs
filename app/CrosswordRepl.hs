@@ -4,10 +4,7 @@ import LanguageMachine (completeCrossword)
 import Crossword (fromStrings)
 
 wordTrieFromFileResult :: FileResult -> WordTrie
-wordTrieFromFileResult fr =
-    insertMany emptyWordTrie $ map fst $ snd fr
-    where
-        emptyWordTrie = WordTrie {nodes = []}
+wordTrieFromFileResult fr = insertMany WordTrie {nodes = []} $ snd fr
 
 main :: IO ()
 main = do

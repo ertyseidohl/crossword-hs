@@ -3,7 +3,7 @@ import Test.Hspec
 import Data.List (sort)
 
 import LanguageMachine (getCompletions, completeCrossword)
-import WordTrie (WordTrie(..), insertMany)
+import WordTrie (WordTrie(..), insertMany1)
 import Crossword (fromStrings)
 
 emptyWordTrie :: WordTrie
@@ -11,20 +11,20 @@ emptyWordTrie = WordTrie {nodes = []}
 
 dict :: [WordTrie]
 dict = [
-    insertMany emptyWordTrie ["cat", "hat", "bat"]
-    , insertMany emptyWordTrie ["cat", "sat", "mat"]
-    , insertMany emptyWordTrie ["cat", "that", "pat"]]
+    insertMany1 emptyWordTrie ["cat", "hat", "bat"]
+    , insertMany1 emptyWordTrie ["cat", "sat", "mat"]
+    , insertMany1 emptyWordTrie ["cat", "that", "pat"]]
 
 basicCrosswordDict :: [WordTrie]
 basicCrosswordDict = [
-    insertMany emptyWordTrie ["abc", "def", "ghi"]
-    , insertMany emptyWordTrie ["adg", "beh", "cfi"]]
+    insertMany1 emptyWordTrie ["abc", "def", "ghi"]
+    , insertMany1 emptyWordTrie ["adg", "beh", "cfi"]]
 
 largerCrosswordDict :: [WordTrie]
 largerCrosswordDict = [
-    insertMany emptyWordTrie ["absdf", "abdah", "abiae", "absaf", "uvdhf", "bgskj", "klfds"]
-    , insertMany emptyWordTrie ["abcde", "fghij", "klmno", "pqrst", "uvwxy"]
-    , insertMany emptyWordTrie ["afkpu", "bglqv", "chmrw", "dinsx", "ejoty"]]
+    insertMany1 emptyWordTrie ["absdf", "abdah", "abiae", "absaf", "uvdhf", "bgskj", "klfds"]
+    , insertMany1 emptyWordTrie ["abcde", "fghij", "klmno", "pqrst", "uvwxy"]
+    , insertMany1 emptyWordTrie ["afkpu", "bglqv", "chmrw", "dinsx", "ejoty"]]
 
 
 main :: IO ()

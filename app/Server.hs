@@ -10,11 +10,7 @@ import WordTrie (WordTrie(..), insertMany)
 import LanguageMachine (getCompletions)
 
 wordTrieFromFileResult :: FileResult -> WordTrie
-wordTrieFromFileResult fr =
-    insertMany emptyWordTrie $ map fst $ snd fr
-    where
-        emptyWordTrie = WordTrie {nodes = []}
-
+wordTrieFromFileResult fr = insertMany WordTrie {nodes = []} $ snd fr
 
 app :: [WordTrie] -> Application
 app wts request respond = respond $ case rawPathInfo request of

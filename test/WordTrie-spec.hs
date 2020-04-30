@@ -1,32 +1,36 @@
 import Test.Hspec
 import Control.Exception
-import WordTrie( WordTrie(..), isWord, insert, insertMany, getWords )
+import WordTrie( WordTrie(..), isWord, insert, insertMany, insertMany1, getWords, getWordFrequency )
 
 emptyWordTrie :: WordTrie
 emptyWordTrie = WordTrie {nodes = []}
 
 d :: WordTrie
-d = insertMany emptyWordTrie ["hello", "world"]
+d = insertMany1 emptyWordTrie ["hello", "world"]
 
 main :: IO ()
 main = hspec $ do
     describe "insert" $ do
         it "Inserts and finds a word" $
-            isWord "hello" (insert emptyWordTrie "hello") `shouldBe` True
+            getWordFrequency "hello" (insert emptyWordTrie ("hello", 1)) `shouldBe` Just 1
         it "Inserts and cannot find a different word" $
-            isWord "bye" (insert emptyWordTrie "hello") `shouldBe` False
+            getWordFrequency "bye" (insert emptyWordTrie ("hello", 1)) `shouldBe` Nothing
         it "Inserts and finds the first word" $
-            isWord "hello" (insertMany emptyWordTrie ["hello", "bye"]) `shouldBe` True
+            getWordFrequency "hello" (insertMany emptyWordTrie [("hello", 1), ("bye", 2)]) `shouldBe` Just 1
         it "Inserts and finds the second word" $
-            isWord "bye" (insertMany emptyWordTrie ["hello", "bye"]) `shouldBe` True
+            getWordFrequency "bye" (insertMany emptyWordTrie [("hello", 1), ("bye", 2)]) `shouldBe` Just 2
         it "Inserts and finds a branched word" $
-            isWord "hero" (insertMany emptyWordTrie ["hello", "hero"]) `shouldBe` True
+            getWordFrequency "hero" (insertMany emptyWordTrie [("hello", 1), ("hero", 2)]) `shouldBe` Just 2
         it "Inserts and finds a subword" $
-            isWord "hell" (insertMany emptyWordTrie ["hello", "hell"]) `shouldBe` True
+            getWordFrequency "hell" (insertMany emptyWordTrie [("hello", 1), ("hell", 2)]) `shouldBe` Just 2
         it "Cannot insert a dot character" $
-            evaluate (insert emptyWordTrie "a.b") `shouldThrow` errorCall "Words cannot contain '.'"
+            evaluate (insert emptyWordTrie ("a.b", 1)) `shouldThrow` errorCall "Words cannot contain '.'"
         it "Cannot insert a hash character" $
-            evaluate (insert emptyWordTrie "a#b") `shouldThrow` errorCall "Words cannot contain '#'"
+            evaluate (insert emptyWordTrie ("a#b", 1)) `shouldThrow` errorCall "Words cannot contain '#'"
+        it "Requires a non-0 frequency" $
+            evaluate (insert emptyWordTrie ("abc", 0)) `shouldThrow` errorCall "Words cannot have a frequency <= 0"
+        it "Requires a >0 frequency" $
+            evaluate (insert emptyWordTrie ("abc", -1)) `shouldThrow` errorCall "Words cannot have a frequency <= 0"
     describe "find" $ do
         it "Handles missing letters at the start" $
             getWords "..llo" d `shouldBe` ["hello"]
@@ -37,7 +41,10 @@ main = hspec $ do
         it "Handles only missing letters" $
             getWords "....." d `shouldBe` ["world", "hello"]
         it "Handles words that differ by one letter" $
-            getWords ".at" (insertMany emptyWordTrie ["bat", "cat", "act"]) `shouldBe` ["cat", "bat"]
+            getWords ".at" (insertMany1 emptyWordTrie ["bat", "cat", "act"]) `shouldBe` ["cat", "bat"]
+    describe "findByFrequency" $
+        it "Sorts found words by frequency" $
+            getWords ".at" (insertMany emptyWordTrie [("sat", 1000), ("bat", 1), ("cat", 3), ("hat", 2)]) `shouldBe` ["sat", "cat", "hat", "bat"]
     describe "isWord" $ do
         it "Returns true if the string is a word" $
             isWord "hello" d `shouldBe` True
