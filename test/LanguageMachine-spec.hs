@@ -3,7 +3,7 @@ import Test.Hspec
 import Data.List (sort)
 
 import LanguageMachine (getCompletions, completeCrossword)
-import WordTrie (WordTrie(..), insertMany1)
+import WordTrie (WordTrie(..), insertMany, insertMany1)
 import Crossword (fromStrings)
 
 emptyWordTrie :: WordTrie
@@ -26,6 +26,11 @@ largerCrosswordDict = [
     , insertMany1 emptyWordTrie ["abcde", "fghij", "klmno", "pqrst", "uvwxy"]
     , insertMany1 emptyWordTrie ["afkpu", "bglqv", "chmrw", "dinsx", "ejoty"]]
 
+dictWithFreq :: [WordTrie]
+dictWithFreq = [
+    insertMany emptyWordTrie [("abcd", 10), ("efgh", 20)]
+    , insertMany emptyWordTrie [("ghij", 15), ("klmn", 25)]]
+
 
 main :: IO ()
 main = hspec $ do
@@ -36,6 +41,8 @@ main = hspec $ do
             getCompletions dict "cat" `shouldBe` ["cat"]
         it "Returns nothing if the string is not a word" $
             getCompletions dict "zat" `shouldBe` []
+        it "Returns completions in order of priority, by word trie" $
+            getCompletions dictWithFreq "...." `shouldBe` ["efgh", "abcd", "klmn", "ghij"]
     describe "completeCrossword" $ do
         it "Completes a crossword with no #s" $ do
             let crosswordStart = fromStrings ["ab.", "...", "..."]
