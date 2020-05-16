@@ -3,7 +3,7 @@ import Data.ByteString.UTF8 (toString)
 import Data.ByteString.Lazy.UTF8 (fromString)
 import Network.HTTP.Types (status200, status400, status404, Query)
 import Network.Wai.Handler.Warp (run)
-import Network.Wai (Application, Response, rawPathInfo, responseFile, responseLBS, queryString)
+import Network.Wai (Application, Response, rawPathInfo, responseLBS, queryString)
 
 import FileLoader (loadData, FileResult)
 import WordTrie (WordTrie(..), insertMany)
@@ -14,7 +14,6 @@ wordTrieFromFileResult fr = insertMany WordTrie {nodes = []} $ snd fr
 
 app :: [WordTrie] -> Application
 app wts request respond = respond $ case rawPathInfo request of
-    "/" -> index
     "/words" -> getWords wts (queryString request)
     _ -> notFound
 
@@ -37,13 +36,6 @@ getWords wts q =
             status400
             [("Content-Type", "text/plain")]
             "Need to provide 'word' query param"
-
-index :: Response
-index = responseFile
-    status200
-    [("Content-Type", "text/html")]
-    "server/index.html"
-    Nothing
 
 notFound :: Response
 notFound = responseLBS
