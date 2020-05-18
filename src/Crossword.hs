@@ -5,6 +5,7 @@ module Crossword(
     fromStrings,
     getWordAt,
     getWordAtStartSquare,
+    getAllCompleteWords,
     isComplete,
     isWordComplete,
     getStartSquares,
@@ -173,3 +174,8 @@ addLetterAt cw xy c =
             }
             DARK -> error "Added word would overlap dark square"
         Nothing -> error "Out of bounds coord in addLetterAt"
+
+getAllCompleteWords :: Crossword -> [String]
+getAllCompleteWords cw =
+    filter noDots $ map (getWordAtStartSquare cw) (getStartSquares cw) where
+        noDots = not . ('.' `elem`)

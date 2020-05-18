@@ -11,7 +11,7 @@ where
 
 import Data.Function (on)
 import Data.List (find,findIndex, foldl', sortBy)
-import Data.Maybe (isJust, isNothing, fromMaybe)
+import Data.Maybe (isJust, fromMaybe)
 
 newtype WordTrie = WordTrie {nodes :: [LetterNode]}
 

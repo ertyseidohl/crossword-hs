@@ -31,6 +31,9 @@ dictWithFreq = [
     insertMany emptyWordTrie [("abcd", 10), ("efgh", 20)]
     , insertMany emptyWordTrie [("ghij", 15), ("klmn", 25)]]
 
+dictForUnknownWords :: [WordTrie]
+dictForUnknownWords = [
+    insertMany1 emptyWordTrie ["def", "ghi", "adg", "ceh", "bfi"]]
 
 main :: IO ()
 main = hspec $ do
@@ -50,3 +53,7 @@ main = hspec $ do
         it "Completes a 5x5 empty crossword" $ do
             let crosswordStart = fromStrings ["ab...", ".....", ".....", ".....", "....."]
             maybe "" show (completeCrossword crosswordStart largerCrosswordDict) `shouldBe` "abcde\nfghij\nklmno\npqrst\nuvwxy\n"
+    describe "Handle Existing Words" $
+        it "Handles the case where an existing word isn't a known word" $ do
+            let crosswordStart = fromStrings ["acb", "...", "..."]
+            maybe "" show (completeCrossword crosswordStart dictForUnknownWords) `shouldBe` "acb\ndef\nghi\n"

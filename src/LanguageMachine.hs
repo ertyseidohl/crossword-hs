@@ -3,8 +3,15 @@ module LanguageMachine (getCompletions, completeCrossword) where
 import Data.List(nub)
 import Data.Maybe(isJust)
 
-import WordTrie (WordTrie, isWord, getWords)
-import Crossword (Crossword, StartSquare, getStartSquares, getWordAtStartSquare, addWordAt, isComplete)
+import WordTrie (WordTrie (..), isWord, getWords, insertMany1)
+import Crossword (
+    Crossword,
+    StartSquare,
+    getStartSquares,
+    getWordAtStartSquare,
+    addWordAt,
+    isComplete,
+    getAllCompleteWords)
 
 getCompletions :: [WordTrie] -> String -> [String]
 getCompletions _ "" = []
@@ -19,10 +26,15 @@ firstJust (x:xs)
     | isJust x = x
     | otherwise = firstJust xs
 
+extractExistingWords :: Crossword -> WordTrie
+extractExistingWords cw = insertMany1 emptyWordTrie $ getAllCompleteWords cw
+    where emptyWordTrie = WordTrie {nodes = []}
+
 completeCrossword :: Crossword -> [WordTrie] -> Maybe Crossword
 completeCrossword cw wts
     | isComplete cw = Just cw
-    | otherwise = completeCrossword' cw (getStartSquares cw) wts
+    | otherwise =
+        completeCrossword' cw (getStartSquares cw) (extractExistingWords cw : wts)
 
 completeCrossword' :: Crossword -> [StartSquare] -> [WordTrie] -> Maybe Crossword
 completeCrossword' cw [] _ = Just cw
