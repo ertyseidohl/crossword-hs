@@ -28,7 +28,7 @@ library
     , directory
   exposed-modules:
     Crossword
-    FileLoader
+    WordLoader
     LanguageMachine
     WordTrie
   default-language: Haskell2010
@@ -55,56 +55,23 @@ executable crossword-repl
   -- hs-source-dirs:
   default-language:    Haskell2010
 
-executable crossword-spec
-  main-is: test/Crossword-spec.hs
-  -- other-modules:
-  -- other-extensions:
+test-suite spec
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  hs-source-dirs:
+      test
+  ghc-options: -Wall
   build-depends:
-    base >=4.12 && <4.13
-    , containers
-    , hspec
-    , QuickCheck
-    , crossword-hs
-  -- hs-source-dirs:
-  default-language:    Haskell2010
-
-executable fileloader-spec
-  main-is: test/FileLoader-spec.hs
-  -- other-modules:
-  -- other-extensions:
-  build-depends:
-    base >=4.12 && <4.13
+      base
     , containers
     , directory
     , hspec
     , QuickCheck
     , crossword-hs
-  -- hs-source-dirs:
-  default-language:    Haskell2010
-
-executable languagemachine-spec
-  main-is: test/LanguageMachine-spec.hs
-  -- other-modules:
-  -- other-extensions:
-  build-depends:
-    base >=4.12 && <4.13
-    , containers
-    , hspec
-    , QuickCheck
-    , crossword-hs
-  -- hs-source-dirs:
-  default-language:    Haskell2010
-
-executable wordtrie-spec
-  main-is: test/WordTrie-spec.hs
-  -- other-modules:
-  -- other-extensions:
-  build-depends:
-    base >=4.12 && <4.13
-    , containers
-    , directory
-    , hspec
-    , QuickCheck
-    , crossword-hs
-  -- hs-source-dirs:
-  default-language:    Haskell2010
+  other-modules:
+    CrosswordSpec
+    , WordLoaderSpec
+    , LanguageMachineSpec
+    , WordTrieSpec
+  default-language: Haskell2010
+  build-tool-depends: hspec-discover:hspec-discover

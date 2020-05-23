@@ -1,4 +1,4 @@
-import FileLoader (loadData, FileResult)
+import WordLoader (loadData, FileResult)
 import WordTrie (WordTrie(..), insertMany)
 import LanguageMachine (completeCrossword)
 import Crossword (fromStrings)

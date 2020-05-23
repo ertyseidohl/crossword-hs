@@ -1,3 +1,5 @@
+module WordTrieSpec (spec) where
+
 import Test.Hspec
 import Control.Exception
 import WordTrie( WordTrie(..), isWord, insert, insertMany, insertMany1, getWords, getWordFrequency )
@@ -8,8 +10,8 @@ emptyWordTrie = WordTrie {nodes = []}
 d :: WordTrie
 d = insertMany1 emptyWordTrie ["hello", "world"]
 
-main :: IO ()
-main = hspec $ do
+spec :: Spec
+spec = do
     describe "insert" $ do
         it "Inserts and finds a word" $
             getWordFrequency "hello" (insert emptyWordTrie ("hello", 1)) `shouldBe` Just 1

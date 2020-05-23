@@ -1,12 +1,14 @@
+module WordLoaderSpec (spec) where
+
 import Test.Hspec
 
-import FileLoader (loadData)
+import WordLoader (loadData)
 
 testDir :: String
 testDir = "test_data"
 
-main :: IO ()
-main = hspec $
+spec :: Spec
+spec = do
     describe "Load a directory" $ do
         it "Loads a directory full of valid data" $
             let d = loadData testDir ["bad_data.tsv", "bad_words.tsv"] in

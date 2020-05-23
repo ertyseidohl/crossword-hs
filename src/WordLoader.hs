@@ -1,4 +1,4 @@
-module FileLoader (loadData, FileErrors, FileResult) where
+module WordLoader (loadData, FileErrors, FileResult) where
 
 import System.Directory (listDirectory)
 import Data.List ((\\), elemIndex)

@@ -1,3 +1,6 @@
+
+module CrosswordSpec (spec) where
+
 import Test.Hspec
 import Control.Exception
 
@@ -9,8 +12,8 @@ import Crossword (
     getStartSquares,
     addWordAt)
 
-main :: IO ()
-main = hspec $ do
+spec :: Spec
+spec = do
     describe "Import and show" $ do
         it "Imports and shows a 3x3 all-light crossword" $
             show (fromStrings ["abc", "def", "ghi"]) `shouldBe` "abc\ndef\nghi\n"
@@ -26,7 +29,9 @@ main = hspec $ do
             show (fromStrings ["ab#", "c#d", "#ef"]) `shouldBe` "ab#\nc#d\n#ef\n"
     describe "Validate" $
         it "Errors out on a non-rectangular crossword" $
-            evaluate (fromStrings ["abc", "de", "fgh"]) `shouldThrow` errorCall "Input was not a rectangle"
+            -- We attempt to print the crossword to force evaluation.
+            -- For some reason `evaluate` didn't work.
+            print (fromStrings ["abc", "de", "fgh"]) `shouldThrow` errorCall "Input was not a rectangle"
     describe "Word At" $ do
         it "Finds an ACROSS word with no dark squares" $
             getWordAt (fromStrings ["abc", "def", "ghi"]) (1,1) ACROSS `shouldBe` "def"

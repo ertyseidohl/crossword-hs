@@ -8,10 +8,10 @@ import Network.Wai (Application, Response, rawPathInfo, responseLBS, queryString
 import Text.Read (readMaybe)
 import System.Timeout (timeout)
 
-import FileLoader (loadData, FileResult)
+import WordLoader (loadData, FileResult)
 import WordTrie (WordTrie(..), insertMany)
 import Crossword (fromStrings)
-import LanguageMachine (getCompletions, completeCrossword)
+import LanguageMachine (getCompletions', completeCrossword)
 
 wordTrieFromFileResult :: FileResult -> WordTrie
 wordTrieFromFileResult fr = insertMany WordTrie {nodes = []} $ snd fr
@@ -48,8 +48,7 @@ findWordCompletions wts q = do
     let page = case lookup "page" q of
                 Just pgv -> fromMaybe 0 $ readMaybe (maybe "0" toString pgv) :: Int
                 Nothing -> 0
-    let completions = getCompletions wts (toString wqv)
-
+    let completions = getCompletions' wts (toString wqv)
     Just $ unwords $ take 10 $ drop (10 * page) completions
 
 getWords :: [WordTrie] -> Query -> Response
