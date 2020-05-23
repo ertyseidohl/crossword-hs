@@ -8,10 +8,10 @@ import Network.Wai (Application, Response, rawPathInfo, responseLBS, queryString
 import Text.Read (readMaybe)
 import System.Timeout (timeout)
 
-import WordLoader (loadData, FileResult)
-import WordTrie (WordTrie(..), insertMany)
 import Crossword (fromStrings)
 import LanguageMachine (getCompletions', completeCrossword)
+import WordLoader (loadData, FileResult)
+import WordTrie (WordTrie(..), insertMany)
 
 wordTrieFromFileResult :: FileResult -> WordTrie
 wordTrieFromFileResult fr = insertMany WordTrie {nodes = []} $ snd fr
@@ -20,7 +20,9 @@ wordsApp :: [WordTrie] -> Application
 wordsApp wts request respond = respond $ case rawPathInfo request of
     "/words" -> getWords wts (queryString request)
     "/solve" -> attemptCompletion wts (queryString request)
+    -- "/create" -> createCrossword (request) -- Need to get POST body ??
     _ -> notFound
+
 
 attemptCompletion :: [WordTrie] -> Query -> Response
 attemptCompletion wts q = case attemptCompletion_ wts q of
@@ -89,10 +91,11 @@ timebound app req respond = do
 
 main :: IO ()
 main = do
-    putStrLn "Loading Words"
+    putStrLn "Loading Words..."
     (errors, results) <- loadData "data" []
     mapM_ print errors
     let wts = map wordTrieFromFileResult results
-    putStrLn "Loaded Words!"
-    putStrLn "http://localhost:8080/"
+    -- putStrLn "Connecting to Database"
+    -- let conn = getConnection
+    putStrLn "Server Started at http://localhost:8080/"
     run 8080 $ allowCors $ timebound $ wordsApp wts
