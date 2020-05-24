@@ -20,7 +20,6 @@ wordsApp :: [WordTrie] -> Application
 wordsApp wts request respond = respond $ case rawPathInfo request of
     "/words" -> getWords wts (queryString request)
     "/solve" -> attemptCompletion wts (queryString request)
-    -- "/create" -> createCrossword (request) -- Need to get POST body ??
     _ -> notFound
 
 
@@ -95,7 +94,5 @@ main = do
     (errors, results) <- loadData "data" []
     mapM_ print errors
     let wts = map wordTrieFromFileResult results
-    -- putStrLn "Connecting to Database"
-    -- let conn = getConnection
     putStrLn "Server Started at http://localhost:8080/"
     run 8080 $ allowCors $ timebound $ wordsApp wts
