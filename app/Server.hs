@@ -78,7 +78,7 @@ addHeader :: Header -> Response -> Response
 addHeader h = mapResponseHeaders (h :)
 
 allowCors :: Middleware
-allowCors = withHeader ("Access-Control-Allow-Origin", "http://localhost:8081")
+allowCors = withHeader ("Access-Control-Allow-Origin", "http://localhost:8080")
 
 timebound :: Middleware
 timebound app req respond = do
@@ -88,11 +88,14 @@ timebound app req respond = do
     maybe (respond $ responseLBS status503 [("Content-Type", "text/plain")] "Timeout") pure
         =<< timeout (sec * 1000000) (app req respond)
 
+port :: Int
+port = 8081
+
 main :: IO ()
 main = do
     putStrLn "Loading Words..."
     (errors, results) <- loadData "data" []
     mapM_ print errors
     let wts = map wordTrieFromFileResult results
-    putStrLn "Server Started at http://localhost:8080/"
-    run 8080 $ allowCors $ timebound $ wordsApp wts
+    putStrLn $ "Server Started at http://localhost:" ++ show port ++ "/"
+    run port $ allowCors $ timebound $ wordsApp wts

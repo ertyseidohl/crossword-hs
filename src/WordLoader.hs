@@ -16,6 +16,7 @@ parseTsv contents = map parseLine (lines contents)
 
 errorIfContainsIllegalChar :: String -> Int -> LineResult
 errorIfContainsIllegalChar word c
+    | ' ' `elem` word = Left ("Ignoring " ++ word ++ " because it contains ' '")
     | '#' `elem` word = Left ("Ignoring " ++ word ++ " because it contains '#'")
     | '.' `elem` word = Left ("Ignoring " ++ word ++ " because it contains '.'")
     | otherwise = Right (word, c)
