@@ -1,12 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
-import Data.ByteString.UTF8 (toString)
 import Data.ByteString.Lazy.UTF8 (fromString)
+import Data.ByteString.UTF8 (toString)
 import Data.Maybe (fromMaybe)
 import Network.HTTP.Types (Header, status200, status204, status400, status404, status503, Query)
-import Network.Wai.Handler.Warp (run)
 import Network.Wai (Application, Response, rawPathInfo, responseLBS, queryString, Middleware, mapResponseHeaders)
-import Text.Read (readMaybe)
+import Network.Wai.Handler.Warp (run)
+import System.Environment (lookupEnv)
 import System.Timeout (timeout)
+import Text.Read (readMaybe)
 
 import Crossword (fromStrings)
 import LanguageMachine (getCompletions', completeCrossword)
@@ -88,8 +89,10 @@ timebound app req respond = do
     maybe (respond $ responseLBS status503 [("Content-Type", "text/plain")] "Timeout") pure
         =<< timeout (sec * 1000000) (app req respond)
 
-port :: Int
-port = 8081
+getPort :: IO Int
+getPort = do
+    port <- (lookupEnv "port")
+    return $ maybe 8081 read port :: IO Int
 
 main :: IO ()
 main = do
@@ -97,5 +100,6 @@ main = do
     (errors, results) <- loadData "data" []
     mapM_ print errors
     let wts = map wordTrieFromFileResult results
+    port <- getPort
     putStrLn $ "Server Started at http://localhost:" ++ show port ++ "/"
     run port $ allowCors $ timebound $ wordsApp wts

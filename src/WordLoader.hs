@@ -1,6 +1,7 @@
 module WordLoader (loadData, FileErrors, FileResult) where
 
 import System.Directory (listDirectory)
+import System.IO (IOMode(ReadMode), hGetContents, hSetEncoding, utf8, openFile)
 import Data.List ((\\), elemIndex)
 import Data.Functor ((<&>))
 import Text.Read (readMaybe)
@@ -43,11 +44,17 @@ partitionErrors' (fp, lrs) = (
         (fp, rights lrs)
     )
 
+readFileUtf8 :: FilePath -> IO String
+readFileUtf8 fp = do
+    inputHandle <- openFile fp ReadMode
+    hSetEncoding inputHandle utf8
+    hGetContents inputHandle
+
 loadData :: FilePath -> [FilePath] -> IO ([FileErrors], [FileResult])
 loadData filePath exclude = do
     files <- listDirectory filePath
     let filtered = files \\ exclude :: [FilePath]
     let prefixed = map ((filePath ++ "/") ++) filtered :: [FilePath]
-    allWords <- traverse readFile prefixed <&> map parseTsv
+    allWords <- traverse readFileUtf8 prefixed <&> map parseTsv
                                 <&> zip filtered
     return $ partitionErrors allWords
