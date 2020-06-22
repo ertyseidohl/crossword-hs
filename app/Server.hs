@@ -79,7 +79,7 @@ addHeader :: Header -> Response -> Response
 addHeader h = mapResponseHeaders (h :)
 
 allowCors :: Middleware
-allowCors = withHeader ("Access-Control-Allow-Origin", "http://localhost:8080")
+allowCors = withHeader ("Access-Control-Allow-Origin", "https://crossword-tool.herokuapp.com")
 
 timebound :: Middleware
 timebound app req respond = do
