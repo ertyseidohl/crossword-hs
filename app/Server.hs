@@ -91,7 +91,7 @@ timebound app req respond = do
 
 getPort :: IO Int
 getPort = do
-    port <- (lookupEnv "port")
+    port <- (lookupEnv "PORT")
     return $ maybe 8081 read port :: IO Int
 
 main :: IO ()
