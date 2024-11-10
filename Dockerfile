@@ -10,8 +10,7 @@ COPY --from=deps /root/.stack /root/.stack
 COPY . /opt/build
 RUN stack build --system-ghc --copy-bins
 
-# haskell:8.8.3 is based on debian:buster so this should save some download time.
-FROM debian:buster
+FROM archlinux:latest
 RUN mkdir -p /opt/app/data
 WORKDIR /opt/app
 COPY --from=build /root/.local/bin/server .
