@@ -11,7 +11,7 @@ extra-source-files:  CHANGELOG.md
 library
   hs-source-dirs: src
   build-depends:
-    base >=4.13 && <4.14
+    base
     , wai
     , warp
     , http-types
@@ -27,7 +27,7 @@ library
 executable server
   main-is: app/Server.hs
   build-depends:
-    base >=4.13 && <4.14
+    base
     , wai
     , warp
     , http-types
@@ -39,7 +39,7 @@ executable server
 executable crossword-repl
   main-is: app/CrosswordRepl.hs
   build-depends:
-    base >=4.13 && <4.14
+    base
     , containers
     , directory
     , crossword-hs

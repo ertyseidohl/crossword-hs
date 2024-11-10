@@ -1,10 +1,10 @@
-FROM haskell:8.8.3 AS deps
+FROM haskell:9.6.6 AS deps
 RUN mkdir /opt/deps/
 WORKDIR /opt/deps/
 COPY stack.yaml crossword-hs.cabal stack.yaml.lock /opt/deps/
 RUN stack build --system-ghc --dependencies-only
 
-FROM haskell:8.8.3 AS build
+FROM haskell:9.6.6 AS build
 WORKDIR /opt/build
 COPY --from=deps /root/.stack /root/.stack
 COPY . /opt/build
