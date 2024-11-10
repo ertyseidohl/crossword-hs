@@ -79,7 +79,7 @@ addHeader :: Header -> Response -> Response
 addHeader h = mapResponseHeaders (h :)
 
 allowCors :: Middleware
-allowCors = withHeader ("Access-Control-Allow-Origin", "https://crossword.erty.me")
+allowCors = withHeader ("Access-Control-Allow-Origin", "https://erty.me")
 
 timebound :: Middleware
 timebound app req respond = do
