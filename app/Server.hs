@@ -23,7 +23,6 @@ wordsApp wts request respond = respond $ case rawPathInfo request of
     "/solve" -> attemptCompletion wts (queryString request)
     _ -> notFound
 
-
 attemptCompletion :: [WordTrie] -> Query -> Response
 attemptCompletion wts q = case attemptCompletion_ wts q of
     Just cw -> responseLBS
@@ -34,7 +33,6 @@ attemptCompletion wts q = case attemptCompletion_ wts q of
         status204
         [("Content-Type", "text/plain")]
         (fromString "No Solution Found")
-
 
 attemptCompletion_ :: [WordTrie] -> Query -> Maybe String
 attemptCompletion_ wts q = do
