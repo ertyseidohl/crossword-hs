@@ -32,7 +32,7 @@ attemptCompletion wts q = case attemptCompletion_ wts q of
     Nothing -> responseLBS
         status204
         [("Content-Type", "text/plain")]
-        (fromString "No Solution Found")
+        "No Solution Found"
 
 attemptCompletion_ :: [WordTrie] -> Query -> Maybe String
 attemptCompletion_ wts q = do
@@ -89,7 +89,7 @@ timebound app req respond = do
 
 getPort :: IO Int
 getPort = do
-    port <- (lookupEnv "PORT")
+    port <- lookupEnv "PORT"
     return $ maybe 8081 read port :: IO Int
 
 main :: IO ()

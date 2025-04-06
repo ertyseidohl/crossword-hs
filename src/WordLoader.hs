@@ -55,6 +55,5 @@ loadData filePath exclude = do
     files <- listDirectory filePath
     let filtered = files \\ exclude :: [FilePath]
     let prefixed = map ((filePath ++ "/") ++) filtered :: [FilePath]
-    allWords <- traverse readFileUtf8 prefixed <&> map parseTsv
-                                <&> zip filtered
+    allWords <- traverse readFileUtf8 prefixed <&> zip filtered . map parseTsv
     return $ partitionErrors allWords

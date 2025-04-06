@@ -15,7 +15,16 @@ import Data.Maybe (isJust, fromMaybe)
 
 newtype WordTrie = WordTrie {nodes :: [LetterNode]}
 
-data LetterNode = LetterNode {char :: Char, children :: [LetterNode], wordFrequency :: Maybe Int, parent :: Maybe LetterNode}
+
+-- CAT CAT CATS
+
+-- C -> A -> T (2) -> S (1)
+
+data LetterNode = LetterNode {char :: !Char, children :: ![LetterNode], wordFrequency :: !(Maybe Int), parent :: !(Maybe LetterNode)}
+
+-- func :: LetterNode -> Bool
+-- func (LetterNode c cs w p) =
+-- func (Letternode b) =
 
 type WordWithFreq = (String, Int)
 
@@ -49,6 +58,7 @@ insertMany1 = foldl' insert1
 insertLetterNode :: [LetterNode] -> WordWithFreq -> Maybe LetterNode -> [LetterNode]
 insertLetterNode ls ([], _) _ = ls
 insertLetterNode ls ((c:cs), freq) p =
+    -- Consider lambda case here
     case findLetterIndex ls c of
         Just i ->
             let
@@ -98,6 +108,7 @@ getWordFrequency_ l (c:cs) = case findLetter (children l) c of
     Just n -> getWordFrequency_ n cs
     Nothing -> Nothing
 
+-- "A..." -> [ABLE, ARIA, ...]
 getWords :: String -> WordTrie -> [String]
 getWords s wt =
     let sort = sortBy (flip compare `on` snd)

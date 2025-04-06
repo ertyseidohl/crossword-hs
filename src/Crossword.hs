@@ -153,6 +153,7 @@ addWordAt :: Crossword -> Coord -> Direction -> String -> Crossword
 addWordAt cw xy dir s
     | coordDist xy (getBound cw dir (+) xy) > length s =
         error "Trying to put a string in too small an area."
+        -- Why don't I have a "too large" case??
     | otherwise = addWordAt' cw xy dir s
 
 addWordAt' :: Crossword -> Coord -> Direction -> String -> Crossword

@@ -38,6 +38,6 @@ There's plenty of work to do and I welcome PRs. Some ideas:
 
 - Fix the static CORS address to be an env var.
 - Parallelize the solver to get a speedup when there are multiple cores.
-- Rewrite the solver to use SAT-solving strategies instead of brute force.
+- Rewrite the solver to use SAT-solving/wave-collapsing strategies instead of brute force.
 - Be able to tell the CLI tool that you didn't like one of the words it chose, so try again without it.
-
+- Figure out why we use 1.1GB of ram and fix that! (with GHC profiling / flame graph)
